@@ -16,9 +16,9 @@ A[last]	= b
 	m	= N
 	n	= 0
 
-	do a &le; b+1 -->
+	do a &ne; b+1 -->
 	<b>{INV: a &le; b+1 }</b>
-		if n=m &rarr;
+		if n &equals; m &rarr;
 	<b>{ a & (2<sup>n</sup> - 1) = 0 }</b>
 			do a & 2<sup>(n-1)</sup> - 1 = 0 -->
 				n &larr; n - 1
@@ -26,9 +26,9 @@ A[last]	= b
 			od
 	<b>{~G: a & 2^(n-1) -1 !=0, INV: a & 2^n - 1 == 0 }</b>
 
-		[] n != m -->
+		[] n &ne; m &rarr;
 			do a & 2^n - 1 != 0 -->
-				n <- n + 1
+				n &larr; n + 1
 				<b>{INV: a & 2^(n-1) - 1 != 0}</b>
 			do
 	<b>{~G: a & 2^n - 1 == 0, INV: a & 2^(n-1) - 1 != 0 }</b>
