@@ -1,9 +1,9 @@
-# cidr_cover start end
+## cidr_cover address_start address_end
 
 <p>
 Create minimal address/mask set to cover a given range of IPv4 addresses
 </p>
-<p>Example</p>
+#### Example
 <pre>
 10.1.2.1 - 10.1.2.7 &rarr;
 	10.1.2.1/32 = 10.1.2.1
@@ -26,8 +26,8 @@ $ ./cidr_cover 10.1.2.1 10.1.2.7
 The range 0.0.0.1 to 255.255.255.254 generates 62 address/masks.
 </p>
 <p>
-If the address ranges are being extracted from jwhois listings
-can be two adjacent /20 that aren't /19) the ranges can be run
+If the address ranges are being extracted from <a href="https://www.gnu.org/software/jwhois/">jwhois</a> listings
+(can be two adjacent /20 that aren't /19) the ranges can be run
 through this routine then merged with
 <a href="https://github.com/pellucida/subnet_merge">subnet_merge</a>.
 This works quite well where different ISPs in one locality have
