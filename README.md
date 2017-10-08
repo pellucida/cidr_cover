@@ -16,12 +16,12 @@ calculates the sequence off addresses and masks.
 Getting the code right can be a bit tricky especially
 for the edge cases.
 </p>
-<code>
+<pre>
 $ ./cidr_cover 10.1.2.1 10.1.2.7
 10.1.2.1/32
 10.1.2.2/31
 10.1.2.4/30
-</code>
+</pre>
 <p>
 The range 0.0.0.1 to 255.255.255.254 generates 62 address/masks.
 </p>
@@ -37,9 +37,11 @@ are equivalent.
 
 ### LICENSE
 Creative Commons CC0
-[http://creativecommons.org/publicdomain/zero/1.0/legalcode]
-(http://creativecommons.org/publicdomain/zero/1.0/legalcode)
+<a href="http://creativecommons.org/publicdomain/zero/1.0/legalcode">
+http://creativecommons.org/publicdomain/zero/1.0/legalcode</a>
 
 
 ### AUTHOR
-[James Sainsbury](mailto:toves@sdf.lonestar.org)
+<a href="mailto:toves@sdf.lonestar.org">
+James Sainsbury</a>
+
