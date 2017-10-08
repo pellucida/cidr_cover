@@ -35,6 +35,11 @@ obtained adjacent allocations and for your purpose the two ISPs
 are equivalent.
 </p>
 
+### SEE ALSO
+Iprange from http://www.cs.colostate.edu/~somlo/iprange.c and code forked
+from it appear to merge subnets as well.  For my purposes I needed to keep these two functions
+separate.
+
 ### LICENSE
 Creative Commons CC0
 <a href="http://creativecommons.org/publicdomain/zero/1.0/legalcode">
