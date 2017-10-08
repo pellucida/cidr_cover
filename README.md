@@ -1,9 +1,9 @@
-## cidr_cover address_start address_end
+<h1> cidr_cover address_start address_end</h1>
 
 <p>
 Create minimal address/mask set to cover a given range of IPv4 addresses
 </p>
-#### Example
+<h2>Example</h2>
 <pre>
 10.1.2.1 - 10.1.2.7 &rarr;
 	10.1.2.1/32 = 10.1.2.1
