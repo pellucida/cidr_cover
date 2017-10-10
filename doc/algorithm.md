@@ -22,9 +22,9 @@ A<sub>last</sub>	= b
 	<b>{ a & (2<sup>n</sup> - 1) &equals; 0 }</b>
 			do a & 2<sup>(n-1)</sup> - 1 = 0 &rarr;
 				n &larr; n - 1
-				<b>{INV: (&forall; i&ge;n) a & 2<sup>n</sup> - 1 &equals; 0}</b>
+				<b>{INV: (&forall; i) i&ge;n &rArr; a & 2<sup>i</sup> - 1 &equals; 0}</b>
 			od
-	<b>{~G: a & 2<sup>(n-1)</sup> -1 &ne;0, INV: a & 2<sup>n</sup> - 1 &equals; 0 }</b>
+	<b>{~G: a & 2<sup>(n-1)</sup> -1 &ne;0, INV:(&forall; i) &ge;n &rArr; a & 2<sup>i</sup> - 1 &equals; 0 }</b>
 
 		[] n &ne; m &rarr;
 			do a & 2<sup>n</sup> - 1 &ne; 0 &rarr;
