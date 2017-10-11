@@ -51,8 +51,8 @@ and where the second constraint is active
 [In the optimal case  m_(k+1) != m_k (we could combine them if equal)]
 
 Invariant?
-	All(i)[i<=k =>
-		a_k = a_0 + Sum(0<i<=k)[ 2^(i-1) ]
+	All(i)[0<=i<=k =>
+		a_i = a_0 + Sum(0<j<=i)[ 2^(j-1) ]
 and		2^m_(i-1) | a_(i-1)
 and		a_(i-1) + 2^m_(i-1) - 1 <= b
 and  	NOT	(2^(m_(i-1)+1) | a_(i-1) and a_(i-1) + 2^(m_(i-1)+1) - 1 <= b) 
