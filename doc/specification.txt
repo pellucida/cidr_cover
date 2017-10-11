@@ -1,0 +1,48 @@
+
+Taking the interval [a,b] where a,b are integers 0 <= a <= b 
+we want to cover this interval with non overlapping
+intervals
+	[a_i, b_i]
+such that
+	a_(i+1) = b_i + 1	# ie joined end to end
+
+and for some m_i >= 0
+	2^m_i | a_i   and   b_i = a_i + 2^m_i - 1 
+
+We have a sequence of m_i (0<=i<=N) which define the powers of 2 that
+in turn define the intervals [a_i, b_i]
+
+a_0	= a
+b_0	= a + 2^m_0 - 1		# 2^m_0 | a_0
+
+a_(k+1)	= b_k + 1
+	= a_k + 2^m_k - 1 + 1
+	= a_k + 2^m_k		# 2^m_k | a_k [ => 2^m_k | a_(k+1) ]
+	= a + Sum(0<=i<=k)[ 2^m_i ]
+
+b	= b_N
+	= a_N + 2^m_N - 1
+	= a + Sum(0<=i<=N-1) [ 2^m_i ] + 2^m_N - 1
+	= a + Sum(0<=i<=N) [ 2^m_i ] - 1
+Note:
+	a + Sum(0<=i<=N) [ 2^m_i ] = b + 1
+
+Without optimisation we could assign m_i = 0 but we wish to minimise the
+number of intervals (N) subject to the constraints.
+
+This corresponds to maximising the the length of each interval.
+Note that the contraints ensure no intervals partially overlap
+ie combining two adjacent interval will not break up a neighbouring
+interval.
+So if we have optimally arrived at a_k we are looking for the largest
+	m_k
+such that
+	2^m_k | a_k  and   a_k + 2^m_k - 1 <= b
+
+Unless the second contraint is active
+	m_(k+1) >= m_k + 1
+
+and where the second constrain is active
+	m_(k+1) <= m_k - 1 
+
+[In the optimal case  m_(k+1) != m_k (we could combine them if equal)]
