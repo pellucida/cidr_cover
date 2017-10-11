@@ -19,6 +19,9 @@ a_(k+1)	= b_k + 1
 	= a_k + 2^m_k - 1 + 1
 	= a_k + 2^m_k		# 2^m_k | a_k [ => 2^m_k | a_(k+1) ]
 	= a + Sum(0<=i<=k)[ 2^m_i ]
+or
+
+a_k	= a + Sum(0<i<=k)[ 2^m(i-1)]	# Can express a = a_0
 
 b	= b_N
 	= a_N + 2^m_N - 1
@@ -42,7 +45,15 @@ such that
 Unless the second contraint is active
 	m_(k+1) >= m_k + 1
 
-and where the second constrain is active
+and where the second constraint is active
 	m_(k+1) <= m_k - 1 
 
 [In the optimal case  m_(k+1) != m_k (we could combine them if equal)]
+
+Invariant?
+	All(i)[i<=k =>
+		a_k = a_0 + Sum(0<i<=k)[ 2^(i-1) ]
+and		2^m_(i-1) | a_(i-1)
+and		a_(i-1) + 2^m_(i-1) - 1 <= b
+and  	NOT	(2^(m_(i-1)+1) | a_(i-1) and a_(i-1) + 2^(m_(i-1)+1) - 1 <= b) 
+	]
