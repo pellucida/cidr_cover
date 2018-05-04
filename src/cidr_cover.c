@@ -9,9 +9,9 @@
 enum    { IPV4_ADDR_BITS  = 32, };
 typedef	in_addr_t	haddr_t;	// Reminds us that its Host Byte Order
 
-//
+/*
 // Work in Host Byte Order - as we never actually use the net addresses.
-//
+*/
 int	inet_ptoh (int family, const char* src, void* dst) {
 	in_addr_t	addr	= 0;
 	int	result	= -1;
