@@ -1,5 +1,5 @@
 
-Taking the interval [A,B] where a,b are integers 0 <= A <= B 
+Taking the interval [A,B] where A,B are integers 0 <= A <= B 
 we want to cover this interval with non overlapping
 intervals
 	[a_i, b_i]
