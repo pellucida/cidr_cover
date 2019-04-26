@@ -1,59 +1,43 @@
 
-Taking the interval [a,b] where a,b are integers 0 <= a <= b 
+Taking the interval [A,B] where a,b are integers 0 <= A <= B 
 we want to cover this interval with non overlapping
 intervals
 	[a_i, b_i]
 such that
 	a_(i+1) = b_i + 1	# ie joined end to end
 
-and for some m_i >= 0
-	2^m_i | a_i   and   b_i = a_i + 2^m_i - 1 
+and for some c_i >= 0
+	a_i mod 2^c_i = 0    and   b_i = a_i + (2^c_i - 1)
 
-We have a sequence of m_i (0<=i<=N) which define the powers of 2 that
+We have a sequence of c_i (1<=i<=k) which define the powers of 2 that
 in turn define the intervals [a_i, b_i]
 
-a_0	= a
-b_0	= a + 2^m_0 - 1		# 2^m_0 | a_0
+b_1	= A + 2^c_1 - 1			#  A mod 2^c_1 = 0
 
-a_(k+1)	= b_k + 1
-	= a_k + 2^m_k - 1 + 1
-	= a_k + 2^m_k		# 2^m_k | a_k [ => 2^m_k | a_(k+1) ]
-	= a + Sum(0<=i<=k)[ 2^m_i ]
-or
+a_i	= A + Sum(1<=j<=i) 2^c_j	#  a_j mod 2^c_j = 0
 
-a_k	= a + Sum(0<i<=k)[ 2^m(i-1)]	# Can express a = a_0
+B	= a_(k-1) + 2^c_k - 1
+	= A + Sum(1<=j<=k-1) 2^c_j  + (2^c_k - 1)
 
-b	= b_N
-	= a_N + 2^m_N - 1
-	= a + Sum(0<=i<=N-1) [ 2^m_i ] + 2^m_N - 1
-	= a + Sum(0<=i<=N) [ 2^m_i ] - 1
-Note:
-	a + Sum(0<=i<=N) [ 2^m_i ] = b + 1
+Without optimisation we could assign c_i = 0 but we wish to minimise the
+number of intervals (k) subject to the constraints.
 
-Without optimisation we could assign m_i = 0 but we wish to minimise the
-number of intervals (N) subject to the constraints.
+Looking at a_i if we define 
+	z (x,y) = n where max(n): (x mod 2^n = 0) and x + (2^n - 1) <= y
 
-This corresponds to maximising the the length of each interval.
-Note that the contraints ensure no intervals partially overlap
-ie combining two adjacent interval will not break up a neighbouring
-interval.
-So if we have optimally arrived at a_k we are looking for the largest
-	m_k
-such that
-	2^m_k | a_k  and   a_k + 2^m_k - 1 <= b
+and select c_i	= z( a_i, B)
+we can see that this is maximal since if we selected
+	c_i' < z(a_i, B) 
+ie	c_i' = c_i + m 		(m>0)
 
-Unless the second contraint is active
-	m_(k+1) >= m_k + 1
+	a_(i+1)' = a_i + 2^c_i' 
+but
+	z(a_(i+1)', B) = c_i'
 
-and where the second constraint is active
-	m_(k+1) <= m_k - 1 
+	a_(i+2)' = a_(i+1)' + 2^c_i'
+		 = a_i + 2^c_i' + 2^c_i'
+		 = a_i + 2^(c_i'+1)
 
-[In the optimal case  m_(k+1) != m_k (we could combine them if equal)]
+and so on until a_(i+m+1)' = a_(i+1) 
 
-Invariant?
-	All(i)[0<=i<=k =>
-		a_i = a_0 + Sum(0<j<=i)[ 2^(j-1) ]
-and		2^m_(i-1) | a_(i-1)
-and		a_(i-1) + 2^m_(i-1) - 1 <= b
-and  	NOT	(2^(m_(i-1)+1) | a_(i-1) and a_(i-1) + 2^(m_(i-1)+1) - 1 <= b) 
-	]
+So we are only adding m extra steps.

@@ -9,6 +9,17 @@
 enum    { IPV4_ADDR_BITS  = 32, };
 typedef	in_addr_t	haddr_t;	// Reminds us that its Host Byte Order
 
+typedef	long long	num;
+
+static	num	powerof2 (unsigned n) { // Inefficient but obvious
+	num	result	=	1;
+	unsigned	i	= 0;
+	for (i=0; i < n; ++i) {
+		result	= result * 2;
+	}
+	return	result;
+}
+
 /*
 // Work in Host Byte Order - as we never actually use the net addresses.
 */
@@ -52,6 +63,10 @@ struct	cidr_cover	{		// 68 bytes
 };
 typedef	struct	cidr_cover	CIDR_COVER;
 
+static	inline	void cidr_cover_init (CIDR_COVER* cc, haddr_t start) {
+	cc->address	= start;
+	cc->nmasks	= 0;
+}
 static	inline	cidr_cover_append (CIDR_COVER* cc, cidr_t mask) {
 	cc->masks[cc->nmasks++]	= mask;
 }
@@ -68,7 +83,7 @@ int	print_cidr_cover (FILE* output, CIDR_COVER* cc) {
 		inet_htop (AF_INET, &ha, addr, sizeof(addr));
 
 		fprintf (output, "%s/%d\n", addr, masks[i]);
-		a	= a + (1lu<<(IPV4_ADDR_BITS-masks[i]));
+		a	= a + powerof2 (IPV4_ADDR_BITS - masks[i]);
 	}
 }
 
@@ -77,55 +92,46 @@ int	print_cidr_cover (FILE* output, CIDR_COVER* cc) {
 
 // Algorithm to calculate the cover.
 
-const	unsigned long	MASK	= ~((~0ul)<<IPV4_ADDR_BITS);
+// largest (z) : (a mod 2^z) = 0 and (a + (2^z)-1) <= b
+// ie a mod 2^(z+1) != 0 or a + (2^z)-1 > b
 
-int	cidr_cover (haddr_t A, haddr_t B, CIDR_COVER* cc) {
-	unsigned long	a	= A;
-	unsigned long	b	= B;
-
-	int	m	= IPV4_ADDR_BITS;
-	int	n	= 0;
-
-	cc->address	= A;	// Start address HBO
-	cc->nmasks	= 0;
-
-	while (a!=(b+1)) {
-		if (n==m) {
-			// a & MASK>>n == 0
-			while ((a & (MASK>>(n-1)))==0) {
-				n	= n - 1;
-			}
-			// ~G: a & MASK>>(n-1) !=0, INV: a & MASK>>n == 0
-		}
-		else	{
-			while ((a & (MASK>>(n)))!=0) {
-				n	= n + 1;
-			}
-			// ~G: a & MASK>>n == 0, INV: a & MASK>>n-1 != 0
-		}
-		//    n==m => ~G: a & MASK>>(n-1) !=0, INV: a & MASK>>n == 0
-		// || n!=m => ~G: a & MASK>>n == 0, INV: a & MASK>>n-1 != 0
-		// =>    a & MASK>>n == 0 && a & MASK>>n-1 !=0 (n maximal)
-
-		m	= n;
-		while ((a + (1lu<<(IPV4_ADDR_BITS-n))) > (b+1)) {
-			n	= n + 1;
-		}
-		// ~G: a + 2^32-n  <= b+1, INV: a + 2^32-(n-1) > b+1 (n maximal)
-
-		cidr_cover_append (cc, n); // Add a/n
-
-		a	= a + (1lu<<(IPV4_ADDR_BITS-n));
+static	int	z (num a, num b) {
+	int	i	= 0;
+	while ((a % powerof2 (i+1)) == 0 && (a + powerof2 (i+1) - 1) <= b) {
+		++i;
 	}
-	// ~G: a == b+1
+	return	i;
 }
+int	cidr_cover (haddr_t A, haddr_t B, CIDR_COVER* cc) {
+
+	num	b	= (num)A - 1;
+	cidr_cover_init (cc, A);
+
+//	k	= 0
+
+	do	{
+//INV:		b == A + Sum(1<=j<=k)(2^c[j]) - 1
+
+		num	a	= b + 1;
+		int	n	= z (a, B);
+
+//		c[k+1],k,b	= z (a,B),k+1,b+2^z(a, b)
+
+		cidr_cover_append (cc, IPV4_ADDR_BITS-n);
+		b	= b + powerof2 (n);
+	} while (b != B);
+
+//	b==B and b == A + Sum(1<=j<=k)(2^c[j]) - 1
+// ==>	B == A + Sum(1<=j<=k)(2^c[j]) - 1
+}
+
 
 # if	defined(TEST)
 
 main (int argc, char* argv[]) {
 	CIDR_COVER	cc;
 	in_addr_t	start	= 0;
-	in_addr_t	finish	= MASK;
+	in_addr_t	finish	= 0;
 	if (argc != 3) {
 		fprintf (stderr, "Usage: %s start-address end-address\n", argv[0]);
 		exit (1);
