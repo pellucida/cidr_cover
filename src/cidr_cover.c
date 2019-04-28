@@ -57,7 +57,7 @@ enum	{ MAXMASKS	= 63, };
 typedef	unsigned char	cidr_t;
 
 struct	cidr_cover	{		// 68 bytes
-	haddr_t	address;	// start address NBO
+	haddr_t	address;	// start address HBO
 	cidr_t	nmasks;
 	cidr_t	masks[MAXMASKS];
 };
@@ -102,6 +102,7 @@ static	int	z (num a, num b) {
 	}
 	return	i;
 }
+// c[i] == IPV4_ADDR_BITS - cc->masks[i-1]
 int	cidr_cover (haddr_t A, haddr_t B, CIDR_COVER* cc) {
 
 	num	b	= (num)A - 1;
@@ -113,7 +114,7 @@ int	cidr_cover (haddr_t A, haddr_t B, CIDR_COVER* cc) {
 //INV:		b == A + Sum(1<=j<=k)(2^c[j]) - 1
 
 		num	a	= b + 1;
-		int	n	= z (a, B);
+		int	n	= z (a, B); // don't need 'a' could use z(b+1,B)
 
 //		c[k+1],k,b	= z (a,B),k+1,b+2^z(a, b)
 
