@@ -26,9 +26,9 @@ Looking at a_i if we define
 	z (x,y) = n where max(n): (x mod 2^n = 0) and x + (2^n - 1) <= y
 
 and select c_i	= z( a_i, B)
-we can see that this is maximal since if we selected
+we can see that this interval is maximal since if we selected
 	c_i' < z(a_i, B) 
-ie	c_i' = c_i + m 		(m>0)
+ie	c_i' = c_i - m 		(m>0)
 
 	a_(i+1)' = a_i + 2^c_i' 
 but
