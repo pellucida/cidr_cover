@@ -1,145 +1,86 @@
 /*
-// @(#) cidr_cover.c - cover [begin..end] addresses (IPv4) with net/mask pairs.
+// @(#) cidr_cover.c
+// @(License-CC0)
 */
+# include	<unistd.h>
 # include	<stdio.h>
-# include       <stdlib.h>
-# include       <errno.h>
-# include       <arpa/inet.h>
+# include	<stdlib.h>
+# include	<string.h>
 
-enum    { IPV4_ADDR_BITS  = 32, };
-typedef	in_addr_t	haddr_t;	// Reminds us that its Host Byte Order
+# include	"constant.h"
+# include	"util.h"
+# include	"netaddr.h"
+# include	"addr_range.h"
+# include	"calc_cover.h"
 
-typedef	long long	num;
-
-static	num	powerof2 (unsigned n) { // Inefficient but obvious
-	num	result	=	1;
-	unsigned	i	= 0;
-	for (i=0; i < n; ++i) {
-		result	= result * 2;
-	}
-	return	result;
-}
-
-/*
-// Work in Host Byte Order - as we never actually use the net addresses.
-*/
-int	inet_ptoh (int family, const char* src, void* dst) {
-	in_addr_t	addr	= 0;
-	int	result	= -1;
-	if (family != AF_INET) {
-		errno	= EAFNOSUPPORT;
-	}
-	else	{
-		result	= inet_pton (family, src, &addr);
-		if (result == 1) {
-			*((haddr_t*)(dst))	= ntohl(addr);
-		}
-	}
-	return	result;
-}
-const char*  inet_htop (int family,const void *src,char *dst,socklen_t size) {
-	const	char*	result	= 0;
-	if (family != AF_INET) {
-		errno	= EAFNOSUPPORT;
-	}
-	else	{	
-		haddr_t	addr	= *((haddr_t*)(src));
-		in_addr_t	naddr	= htonl (addr);
-		result	= inet_ntop (family, &naddr, dst, size);
-	}
-	return	result;
-}
-// ----
-
-// ---- cover data structure 
-
-enum	{ MAXMASKS	= 63, };
-typedef	unsigned char	cidr_t;
-
-struct	cidr_cover	{		// 68 bytes
-	haddr_t	address;	// start address HBO
-	cidr_t	nmasks;
-	cidr_t	masks[MAXMASKS];
-};
-typedef	struct	cidr_cover	CIDR_COVER;
-
-static	inline	void cidr_cover_init (CIDR_COVER* cc, haddr_t start) {
-	cc->address	= start;
-	cc->nmasks	= 0;
-}
-static	inline	cidr_cover_append (CIDR_COVER* cc, cidr_t mask) {
-	cc->masks[cc->nmasks++]	= mask;
-}
-
-int	print_cidr_cover (FILE* output, CIDR_COVER* cc) {
-	cidr_t	i	= 0;
-	unsigned long	a	= cc->address;
-	cidr_t		nmasks	= cc->nmasks;
-	cidr_t*		masks	= cc->masks;
-
-	for (i=0; i < nmasks; ++i) {
-		char    addr[INET_ADDRSTRLEN];
-		haddr_t	ha	= a;		// easier than casting
-		inet_htop (AF_INET, &ha, addr, sizeof(addr));
-
-		fprintf (output, "%s/%d\n", addr, masks[i]);
-		a	= a + powerof2 (IPV4_ADDR_BITS - masks[i]);
-	}
-}
-
-// -----
-
-
-// Algorithm to calculate the cover.
-
-// largest (z) : (a mod 2^z) = 0 and (a + (2^z)-1) <= b
-// ie a mod 2^(z+1) != 0 or a + (2^z)-1 > b
-
-static	int	z (num a, num b) {
-	int	i	= 0;
-	while ((a % powerof2 (i+1)) == 0 && (a + powerof2 (i+1) - 1) <= b) {
-		++i;
-	}
-	return	i;
-}
-// c[i] == IPV4_ADDR_BITS - cc->masks[i-1]
-int	cidr_cover (haddr_t A, haddr_t B, CIDR_COVER* cc) {
-
-	num	b	= (num)A - 1;
-	cidr_cover_init (cc, A);
-
-//	k	= 0
-
-	do	{
-//INV:		b == A + Sum(1<=j<=k)(2^c[j]) - 1
-
-		num	a	= b + 1;
-		int	n	= z (a, B); // don't need 'a' could use z(b+1,B)
-
-//		c[k+1],k,b	= z (a,B),k+1,b+2^z(a, b)
-
-		cidr_cover_append (cc, IPV4_ADDR_BITS-n);
-		b	= b + powerof2 (n);
-	} while (b != B);
-
-//	b==B and b == A + Sum(1<=j<=k)(2^c[j]) - 1
-// ==>	B == A + Sum(1<=j<=k)(2^c[j]) - 1
+void    Usage() {
+        fprintf (stderr, "Usage: %s [files...]\n", progname());
+        exit (EXIT_FAILURE);
 }
 
 
-# if	defined(TEST)
+static  int     process_file (FILE* input, FILE* output);
 
 main (int argc, char* argv[]) {
-	CIDR_COVER	cc;
-	in_addr_t	start	= 0;
-	in_addr_t	finish	= 0;
-	if (argc != 3) {
-		fprintf (stderr, "Usage: %s start-address end-address\n", argv[0]);
-		exit (1);
+	FILE*	input	= stdin;
+	FILE*	output	= stdout;
+	int	opt	= EOF;
+
+	setprogname (argv[0]);
+
+	while ((opt = getopt (argc,argv, "h"))!=EOF) {
+		switch (opt) {
+		case	'h':
+		default:
+			Usage ();
+		}
 	}
-	inet_ptoh (AF_INET, argv[1], &start);
-	inet_ptoh (AF_INET, argv[2], &finish);
-	cidr_cover (start, finish, &cc);	
-	print_cidr_cover (stdout, &cc);
+
+	if (optind == argc) {
+		process_file (input, output);
+	}
+	else for (; optind < argc; optind++) {
+		input	=  fopen (argv [optind], "r");
+		if (input==0) {
+			error ("Cannot open file: \"%s\"\n", argv [optind]);
+		}
+		else	{
+			process_file (input, output);
+			fclose (input);
+		}
+	}
 }
-# endif
+
+static	int	process_file (FILE* input, FILE* output) {
+	char	line [BUFSIZ];
+	while (fgetline (input, line, sizeof(line)) != EOF) {
+		char*		t	= strchr (line, '-');
+		if (t != 0) {
+			haddr_t	start	= 0;
+			haddr_t	finish	= 0;
+			*t++	= '\0';
+			if (inet_ptoh (AF_INET, line, &start) == ADDR_OK) {
+				if (inet_ptoh (AF_INET, t, &finish) == ADDR_OK) {
+
+					range_list_t	r	= {.nranges = 0, };
+
+					if (start > finish) {
+						haddr_t	tmp	= start;
+						warn ("Address range END < START %s-%s - swapping\n", line, t);
+						start	= finish;
+						finish	= tmp;
+					}
+					cidr_cover (start, finish, &r);
+					range_list_print (&r, output);
+				}
+				else	{
+					error ("Address range error (END) %s-%s\n", line, t);
+				}
+			}
+			else	{
+				error ("Address range error (START) %s-%s\n", line, t);
+			}
+		}
+	}
+	return	ok;
+}
