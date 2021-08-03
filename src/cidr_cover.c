@@ -54,7 +54,7 @@ main (int argc, char* argv[]) {
 static	int	process_file (FILE* input, FILE* output) {
 	char	line [BUFSIZ];
 	while (fgetline (input, line, sizeof(line)) != EOF) {
-		char*		t	= strchr (line, '-');
+		char*		t	= strpbrk (line, "-\t ");
 		if (t != 0) {
 			haddr_t	start	= 0;
 			haddr_t	finish	= 0;
