@@ -1,8 +1,9 @@
 
 Taking the interval [A,B] where A,B are integers 0 <= A <= B 
-we want to cover this interval with non overlapping
-intervals
+we want to cover this interval with non overlapping intervals
+
 	[a_i, b_i]
+
 such that
 	a_(i+1) = b_i + 1	# ie joined end to end
 
@@ -22,13 +23,20 @@ B	= a_(k-1) + 2^c_k - 1
 Without optimisation we could assign c_i = 0 but we wish to minimise the
 number of intervals (k) subject to the constraints.
 
-Looking at a_i if we define 
-	z (x,y) = n where max(n): (x mod 2^n = 0) and x + (2^n - 1) <= y
+Looking at a_i if we define the function z()
+
+	z (x,y) = n
+		where max(n): (x mod 2^n = 0) and x + (2^n - 1) <= y
 
 and select c_i	= z( a_i, B)
-we can see that this interval is maximal since if we selected
+we can see that this interval is maximal and thus the number
+of intervals minimal since if we selected
+
 	c_i' < z(a_i, B) 
-ie	c_i' = c_i - m 		(m>0)
+
+ie there is an 'm' such that
+
+	c_i' = c_i - m 
 
 	a_(i+1)' = a_i + 2^c_i' 
 but
