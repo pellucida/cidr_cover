@@ -1,6 +1,6 @@
 
 CFLAGS	+= -g
-cidr_cover:	cidr_cover.o calc_cover.o addr_range.o netaddr.o calc_cover.o util.o
+cidr_cover:	cidr_cover.o calc_cover.o addr_range.o netaddr.o calc_cover.o util.o strlist.o
 
 clean: 
 	rm -f *.o a.out
@@ -18,3 +18,5 @@ netaddr.o: netaddr.c constant.h netaddr.h
 netaddr.o: netaddr.h
 util.o: util.c
 util.o: util.h
+strlist.o: strlist.c
+strlist.o: strlist.h
